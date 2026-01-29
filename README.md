@@ -1,5 +1,6 @@
 # Info-Bharat
-Context-aware AI guidance platform for Indian citizens (AWS AI for Bharat submission)
+
+A national AI trust layer that sits between citizens and public systems, providing safe, contextual, and explainable guidance at life-critical moments.(AWS AI for Bharat submission)
 
 Info-Bharat is a context-aware AI-powered public decision guidance platform designed for Indian citizens, especially first time, vulnerable, and underserved users.
 
