@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Info-Bharat — AI for Communities</title>
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Devanagari+Hindi&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --saffron:#E8560A; --saffron-light:#FF7A30; --saffron-pale:#FFF3EC; --saffron-border:#FDDCC8;
+  --indigo:#1B2176; --indigo-mid:#2D3694; --indigo-light:#ECEEFF; --indigo-border:#C8CCFF;
+  --green:#0F7A0F; --green-light:#EBF7EB; --green-border:#B3E0B3;
+  --red:#B91C1C; --red-light:#FEF2F2; --red-border:#FECACA;
+  --amber:#B45309; --amber-light:#FFFBEB; --amber-border:#FDE68A;
+  --n50:#FAFAF8; --n100:#F4F4EF; --n200:#E5E5DC; --n400:#A3A396; --n500:#737368; --n700:#3D3D35; --n900:#1A1A14;
+  --shadow-sm:0 2px 8px rgba(27,33,118,0.08); --shadow-md:0 4px 20px rgba(27,33,118,0.12);
+  --r:14px; --r-lg:20px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--n50);color:var(--n900);min-height:100vh;}
+
+/* TRICOLOR + HEADER */
+.tricolor{height:5px;background:linear-gradient(90deg,var(--saffron) 33.3%,#fff 33.3%,#fff 66.6%,var(--green) 66.6%);}
+header{background:var(--indigo);padding:12px 20px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:300;box-shadow:0 2px 16px rgba(0,0,0,0.25);}
+.logo-orb{width:40px;height:40px;background:linear-gradient(135deg,var(--saffron),var(--saffron-light));border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;box-shadow:0 2px 8px rgba(232,86,10,0.4);}
+.logo-words h1{font-family:'Playfair Display',serif;font-size:19px;color:#fff;line-height:1.1;}
+.logo-words p{font-size:10px;color:rgba(255,255,255,0.55);letter-spacing:1.2px;text-transform:uppercase;font-weight:500;}
+.header-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+
+/* LANGUAGE SELECTOR */
+.lang-select{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:12px;padding:5px 10px;border-radius:20px;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.lang-select option{background:var(--indigo);color:#fff;}
+
+/* TTS BUTTON */
+.tts-btn{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:#fff;font-size:12px;padding:5px 12px;border-radius:20px;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all 0.2s;}
+.tts-btn:hover{background:rgba(255,255,255,0.2);}
+.tts-btn.speaking{background:var(--saffron);border-color:var(--saffron);}
+
+/* NAV TABS */
+.nav-tabs{background:#fff;border-bottom:2px solid var(--n200);display:flex;overflow-x:auto;scrollbar-width:none;position:sticky;top:69px;z-index:200;}
+.nav-tabs::-webkit-scrollbar{display:none;}
+.nav-tab{padding:14px 20px;font-size:13px;font-weight:500;color:var(--n500);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all 0.2s;display:flex;align-items:center;gap:7px;}
+.nav-tab:hover{color:var(--indigo);background:var(--indigo-light);}
+.nav-tab.active{color:var(--indigo);border-bottom-color:var(--saffron);font-weight:600;}
+.nav-tab .tab-badge{background:var(--red-light);color:var(--red);font-size:10px;padding:2px 6px;border-radius:10px;font-weight:700;}
+
+/* VIEWS */
+.view{display:none;animation:fadeUp 0.35s ease;}
+.view.visible{display:block;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+/* CITIZEN VIEW */
+.citizen-wrap{max-width:680px;margin:0 auto;padding:24px 16px 80px;}
+
+/* JOURNEY BAR */
+.journey{display:flex;align-items:center;gap:4px;background:#fff;border:1px solid var(--n200);border-radius:50px;padding:6px 10px;margin-bottom:22px;overflow-x:auto;scrollbar-width:none;box-shadow:var(--shadow-sm);}
+.journey::-webkit-scrollbar{display:none;}
+.j-step{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:30px;font-size:12px;font-weight:500;color:var(--n400);white-space:nowrap;transition:all 0.3s;}
+.j-step.active{background:var(--indigo-light);color:var(--indigo);font-weight:600;}
+.j-step.done{background:var(--green-light);color:var(--green);}
+.j-sep{color:var(--n200);font-size:14px;}
+
+/* CARDS */
+.card{background:#fff;border:1px solid var(--n200);border-radius:var(--r-lg);padding:22px;margin-bottom:14px;box-shadow:var(--shadow-sm);}
+.card-eyebrow{font-size:11px;font-weight:600;color:var(--n400);text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
+.card-eyebrow::after{content:'';flex:1;height:1px;background:var(--n200);}
+.card h2{font-family:'Playfair Display',serif;font-size:21px;color:var(--indigo);line-height:1.3;margin-bottom:7px;}
+.card .subtitle{font-size:13.5px;color:var(--n500);margin-bottom:20px;line-height:1.6;}
+
+/* ROLE GRID */
+.role-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.role-btn{border:2px solid var(--n200);background:#fff;border-radius:var(--r);padding:14px;cursor:pointer;transition:all 0.2s;text-align:left;display:flex;flex-direction:column;gap:4px;position:relative;overflow:hidden;}
+.role-btn::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--saffron);transform:scaleY(0);transition:transform 0.2s;transform-origin:bottom;}
+.role-btn:hover,.role-btn.selected{border-color:var(--saffron);background:var(--saffron-pale);}
+.role-btn:hover::before,.role-btn.selected::before{transform:scaleY(1);}
+.role-btn.selected{box-shadow:0 0 0 3px rgba(232,86,10,0.1);}
+.role-emoji{font-size:24px;line-height:1;}
+.role-name{font-size:13px;font-weight:600;}
+.role-desc{font-size:11px;color:var(--n500);}
+
+/* FORM */
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:13px;font-weight:600;color:var(--n700);margin-bottom:6px;}
+.field label span{color:var(--saffron);}
+.select-wrap{position:relative;}
+.select-wrap::after{content:'▾';position:absolute;right:13px;top:50%;transform:translateY(-50%);color:var(--n400);pointer-events:none;font-size:12px;}
+.field select,.field input,.field textarea{width:100%;border:1.5px solid var(--n200);border-radius:var(--r);padding:10px 13px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--n900);background:#fff;appearance:none;transition:border-color 0.2s,box-shadow 0.2s;outline:none;}
+.field select:focus,.field input:focus,.field textarea:focus{border-color:var(--indigo-mid);box-shadow:0 0 0 3px var(--indigo-light);}
+.field textarea{resize:vertical;min-height:85px;}
+.field-hint{font-size:11.5px;color:var(--n400);margin-top:4px;}
+
+/* BUTTONS */
+.btn-primary{background:linear-gradient(135deg,var(--indigo),var(--indigo-mid));color:#fff;border:none;border-radius:var(--r);padding:12px 26px;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.2s;box-shadow:var(--shadow-sm);display:inline-flex;align-items:center;gap:8px;}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:var(--shadow-md);}
+.btn-primary:disabled{opacity:0.55;cursor:not-allowed;transform:none;}
+.btn-secondary{background:var(--n100);color:var(--n700);border:1.5px solid var(--n200);border-radius:var(--r);padding:10px 20px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all 0.2s;}
+.btn-secondary:hover{background:var(--n200);}
+.btn-row{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
+
+/* SCREENS */
+.screen{display:none;animation:fadeUp 0.35s ease;}
+.screen.visible{display:block;}
+
+/* CONFIDENCE */
+.confidence-block{border:1.5px solid var(--n200);border-radius:var(--r);padding:16px;margin-bottom:14px;}
+.confidence-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.confidence-label{font-size:13px;font-weight:600;color:var(--n700);}
+.confidence-value{font-size:22px;font-weight:700;color:var(--indigo);font-family:'Playfair Display',serif;}
+.meter-track{height:8px;background:var(--n100);border-radius:4px;overflow:hidden;margin-bottom:7px;}
+.meter-fill{height:100%;border-radius:4px;transition:width 1.2s cubic-bezier(0.4,0,0.2,1);background:linear-gradient(90deg,var(--saffron),#F59E0B);}
+.meter-fill.high{background:linear-gradient(90deg,var(--green),#22C55E);}
+.meter-fill.medium{background:linear-gradient(90deg,var(--amber),#F59E0B);}
+.meter-fill.low{background:linear-gradient(90deg,var(--red),#EF4444);}
+.confidence-note{font-size:12px;color:var(--n500);}
+
+/* ALERTS */
+.alert{border-radius:var(--r);padding:13px 15px;margin-bottom:13px;display:flex;gap:11px;align-items:flex-start;font-size:13.5px;line-height:1.5;animation:fadeUp 0.3s ease;}
+.alert-icon{font-size:19px;flex-shrink:0;margin-top:1px;}
+.alert-body strong{display:block;font-weight:600;margin-bottom:2px;font-size:13px;}
+.alert.danger{background:var(--red-light);border:1.5px solid var(--red-border);color:var(--red);}
+.alert.warning{background:var(--amber-light);border:1.5px solid var(--amber-border);color:var(--amber);}
+.alert.success{background:var(--green-light);border:1.5px solid var(--green-border);color:var(--green);}
+.alert.info{background:var(--indigo-light);border:1.5px solid var(--indigo-border);color:var(--indigo);}
+
+/* SCHEME CARDS */
+.scheme-list{display:flex;flex-direction:column;gap:11px;}
+.scheme-card{border:1.5px solid var(--n200);border-radius:var(--r);padding:16px;background:#fff;transition:all 0.2s;position:relative;overflow:hidden;}
+.scheme-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:2px 0 0 2px;}
+.scheme-card.eligible::before{background:var(--green);}
+.scheme-card.partial::before{background:var(--amber);}
+.scheme-card.ineligible::before{background:var(--red);}
+.scheme-card.refused::before{background:var(--n400);}
+.scheme-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px);}
+.scheme-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:7px;}
+.scheme-name{font-size:14px;font-weight:600;}
+.scheme-ministry{font-size:11px;color:var(--n500);margin-top:2px;}
+.scheme-badge{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+.badge-eligible{background:var(--green-light);color:var(--green);}
+.badge-partial{background:var(--amber-light);color:var(--amber);}
+.badge-ineligible{background:var(--red-light);color:var(--red);}
+.badge-refused{background:var(--n100);color:var(--n500);}
+.scheme-explanation{font-size:13px;color:var(--n700);margin-bottom:8px;line-height:1.55;}
+.scheme-nearmiss{font-size:12px;background:var(--amber-light);border:1px solid var(--amber-border);border-radius:8px;padding:9px 11px;color:var(--amber);margin-top:7px;}
+.scheme-nextsteps{font-size:12px;background:var(--indigo-light);border:1px solid var(--indigo-border);border-radius:8px;padding:9px 11px;color:var(--indigo);margin-top:7px;}
+
+/* LOADING */
+.loading-card{background:#fff;border:1px solid var(--n200);border-radius:var(--r-lg);padding:40px 24px;text-align:center;box-shadow:var(--shadow-sm);}
+.spinner{width:42px;height:42px;border:3px solid var(--n200);border-top-color:var(--indigo);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 14px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-card p{color:var(--n500);font-size:13px;}
+.loading-label{color:var(--indigo);font-weight:600;font-size:15px;margin-bottom:5px;}
+
+/* MIDDLEMAN */
+.middleman-alert{background:#fff;border:2px solid var(--red);border-radius:var(--r);padding:18px;margin-bottom:14px;animation:pulse-border 2s ease-in-out 3;}
+@keyframes pulse-border{0%,100%{border-color:var(--red);}50%{border-color:#EF4444;box-shadow:0 0 0 4px rgba(185,28,28,0.1);}}
+.middleman-alert h3{font-size:14px;font-weight:700;color:var(--red);display:flex;align-items:center;gap:7px;margin-bottom:9px;}
+.middleman-alert p{font-size:13px;color:var(--n700);margin-bottom:9px;line-height:1.55;}
+.middleman-alert .free-note{background:var(--green-light);border:1px solid var(--green-border);border-radius:8px;padding:9px 11px;font-size:12.5px;color:var(--green);font-weight:500;}
+
+/* JOURNEY LOG */
+.journey-log{border:1.5px solid var(--n200);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
+.journey-log-header{background:var(--n100);padding:10px 15px;font-size:11px;font-weight:600;color:var(--n500);text-transform:uppercase;letter-spacing:0.8px;}
+.log-entry{padding:10px 15px;border-top:1px solid var(--n200);display:flex;gap:10px;align-items:flex-start;font-size:12.5px;}
+.log-dot{width:8px;height:8px;border-radius:50%;margin-top:4px;flex-shrink:0;}
+.log-dot.green{background:var(--green);}
+.log-dot.amber{background:var(--amber);}
+.log-dot.red{background:var(--red);}
+.log-dot.blue{background:var(--indigo);}
+.log-text{color:var(--n700);line-height:1.45;}
+.log-time{font-size:10.5px;color:var(--n400);margin-top:1px;}
+
+/* AI RESPONSE */
+.ai-response{background:var(--indigo-light);border:1.5px solid var(--indigo-border);border-radius:var(--r);padding:16px;margin-bottom:13px;}
+.ai-label{font-size:11px;font-weight:600;color:var(--indigo);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:9px;display:flex;align-items:center;gap:6px;}
+.ai-response p{font-size:13.5px;color:var(--indigo);line-height:1.65;}
+
+/* REJECTION */
+.rejection-block{background:var(--red-light);border:1.5px solid var(--red-border);border-radius:var(--r);padding:18px;margin-bottom:14px;}
+.rejection-block h3{font-size:14px;font-weight:700;color:var(--red);margin-bottom:7px;display:flex;align-items:center;gap:7px;}
+.rejection-reasons{list-style:none;}
+.rejection-reasons li{font-size:13px;color:var(--red);padding:5px 0;border-bottom:1px solid var(--red-border);display:flex;gap:7px;align-items:flex-start;}
+.rejection-reasons li:last-child{border-bottom:none;}
+.rejection-reasons li::before{content:'✗';flex-shrink:0;font-weight:700;}
+
+/* TYPING DOTS */
+.typing-dots span{display:inline-block;width:6px;height:6px;background:var(--indigo);border-radius:50%;margin:0 2px;animation:bounce 1.2s infinite;}
+.typing-dots span:nth-child(2){animation-delay:0.2s;}
+.typing-dots span:nth-child(3){animation-delay:0.4s;}
+@keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:0.4;}40%{transform:translateY(-6px);opacity:1;}}
+
+/* ═══════════════════════════════════════
+   COMMUNITY DASHBOARD
+═══════════════════════════════════════ */
+.dash-wrap{max-width:1100px;margin:0 auto;padding:24px 16px 80px;}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-bottom:24px;}
+
+.stat-card{background:#fff;border:1px solid var(--n200);border-radius:var(--r);padding:18px;box-shadow:var(--shadow-sm);}
+.stat-label{font-size:11px;font-weight:600;color:var(--n500);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;}
+.stat-value{font-size:28px;font-weight:700;font-family:'Playfair Display',serif;color:var(--indigo);line-height:1;}
+.stat-sub{font-size:12px;color:var(--n400);margin-top:4px;}
+.stat-card.alert-card{border-color:var(--red-border);background:var(--red-light);}
+.stat-card.alert-card .stat-value{color:var(--red);}
+.stat-card.alert-card .stat-label{color:var(--red);}
+
+.dash-section{margin-bottom:28px;}
+.dash-section h3{font-family:'Playfair Display',serif;font-size:18px;color:var(--indigo);margin-bottom:4px;}
+.dash-section p{font-size:13px;color:var(--n500);margin-bottom:16px;}
+
+/* HEATMAP TABLE */
+.heatmap-table{width:100%;border-collapse:collapse;background:#fff;border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow-sm);}
+.heatmap-table th{background:var(--indigo);color:#fff;font-size:12px;font-weight:600;padding:12px 14px;text-align:left;letter-spacing:0.5px;}
+.heatmap-table td{padding:11px 14px;font-size:13px;border-bottom:1px solid var(--n200);}
+.heatmap-table tr:last-child td{border-bottom:none;}
+.heatmap-table tr:hover td{background:var(--n50);}
+.heat-cell{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.heat-critical{background:#FEE2E2;color:#991B1B;}
+.heat-high{background:#FEF3C7;color:#92400E;}
+.heat-medium{background:#DBEAFE;color:#1E40AF;}
+.heat-low{background:#D1FAE5;color:#065F46;}
+
+/* DISTRICT CARDS */
+.district-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px;}
+.district-card{background:#fff;border:1px solid var(--n200);border-radius:var(--r);padding:16px;box-shadow:var(--shadow-sm);}
+.district-card h4{font-size:14px;font-weight:700;color:var(--n900);margin-bottom:3px;}
+.district-card .state-label{font-size:11px;color:var(--n400);margin-bottom:12px;}
+.district-metric{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--n200);font-size:13px;}
+.district-metric:last-child{border-bottom:none;}
+.district-metric .metric-label{color:var(--n500);}
+.district-metric .metric-val{font-weight:600;color:var(--n900);}
+.district-metric .metric-val.red{color:var(--red);}
+.district-metric .metric-val.amber{color:var(--amber);}
+.district-metric .metric-val.green{color:var(--green);}
+
+/* EXPLOITATION MAP */
+.exploitation-list{display:flex;flex-direction:column;gap:10px;}
+.exploit-item{background:#fff;border:1px solid var(--n200);border-radius:var(--r);padding:14px 16px;display:flex;align-items:center;gap:14px;box-shadow:var(--shadow-sm);}
+.exploit-rank{width:32px;height:32px;border-radius:50%;background:var(--red-light);color:var(--red);font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.exploit-info{flex:1;}
+.exploit-place{font-size:14px;font-weight:600;}
+.exploit-state{font-size:11px;color:var(--n400);}
+.exploit-bar-wrap{width:120px;}
+.exploit-bar{height:6px;background:var(--n200);border-radius:3px;overflow:hidden;}
+.exploit-fill{height:100%;background:linear-gradient(90deg,var(--red),#EF4444);border-radius:3px;}
+.exploit-pct{font-size:11px;color:var(--red);font-weight:700;margin-top:3px;}
+
+/* SCHEME PERFORMANCE */
+.perf-list{display:flex;flex-direction:column;gap:10px;}
+.perf-item{background:#fff;border:1px solid var(--n200);border-radius:var(--r);padding:14px 16px;box-shadow:var(--shadow-sm);}
+.perf-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.perf-name{font-size:13px;font-weight:600;}
+.perf-tag{font-size:11px;padding:3px 9px;border-radius:20px;font-weight:600;}
+.perf-bar-track{height:7px;background:var(--n100);border-radius:4px;overflow:hidden;}
+.perf-bar-fill{height:100%;border-radius:4px;transition:width 1s ease;}
+.perf-stats{display:flex;gap:16px;margin-top:8px;}
+.perf-stat{font-size:11.5px;color:var(--n500);}
+.perf-stat strong{color:var(--n900);}
+
+/* ═══════════════════════════════════════
+   GOVERNMENT DASHBOARD
+═══════════════════════════════════════ */
+.gov-wrap{background:var(--n50);min-height:100vh;}
+.gov-header{background:linear-gradient(135deg,#0F172A,#1E2D6B);padding:24px 24px 0;color:#fff;}
+.gov-header-inner{max-width:1200px;margin:0 auto;}
+.gov-title{font-family:'Playfair Display',serif;font-size:24px;color:#fff;margin-bottom:4px;}
+.gov-subtitle{font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:20px;}
+.gov-sub-tabs{display:flex;gap:0;border-bottom:none;}
+.gov-sub-tab{padding:12px 20px;font-size:13px;font-weight:500;color:rgba(255,255,255,0.55);cursor:pointer;border-bottom:3px solid transparent;transition:all 0.2s;}
+.gov-sub-tab:hover{color:rgba(255,255,255,0.85);}
+.gov-sub-tab.active{color:#fff;border-bottom-color:var(--saffron);}
+
+.gov-body{max-width:1200px;margin:0 auto;padding:24px 16px 80px;}
+
+.gov-sub-view{display:none;animation:fadeUp 0.3s ease;}
+.gov-sub-view.visible{display:block;}
+
+.gov-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-bottom:28px;}
+.gov-stat{background:#fff;border:1px solid var(--n200);border-radius:var(--r);padding:20px;box-shadow:var(--shadow-sm);}
+.gov-stat-icon{font-size:24px;margin-bottom:10px;}
+.gov-stat-val{font-size:32px;font-weight:800;font-family:'Playfair Display',serif;color:var(--indigo);line-height:1;}
+.gov-stat-label{font-size:12px;color:var(--n500);margin-top:4px;font-weight:500;}
+.gov-stat-change{font-size:11px;margin-top:6px;padding:3px 8px;border-radius:20px;display:inline-block;font-weight:600;}
+.gov-stat-change.up{background:var(--red-light);color:var(--red);}
+.gov-stat-change.down{background:var(--green-light);color:var(--green);}
+
+.section-title{font-family:'Playfair Display',serif;font-size:18px;color:var(--indigo);margin-bottom:4px;}
+.section-sub{font-size:13px;color:var(--n500);margin-bottom:16px;}
+
+/* ANOMALY ALERTS */
+.anomaly-list{display:flex;flex-direction:column;gap:10px;margin-bottom:24px;}
+.anomaly-item{background:#fff;border-left:4px solid var(--red);border-radius:0 var(--r) var(--r) 0;padding:14px 16px;box-shadow:var(--shadow-sm);display:flex;align-items:flex-start;gap:12px;}
+.anomaly-item.warning{border-left-color:var(--amber);}
+.anomaly-item.info{border-left-color:var(--indigo);}
+.anomaly-icon{font-size:20px;flex-shrink:0;}
+.anomaly-title{font-size:14px;font-weight:700;color:var(--n900);margin-bottom:3px;}
+.anomaly-desc{font-size:12.5px;color:var(--n500);line-height:1.5;}
+.anomaly-meta{font-size:11px;color:var(--n400);margin-top:4px;}
+.anomaly-action{margin-left:auto;flex-shrink:0;}
+.action-btn{background:var(--indigo-light);color:var(--indigo);border:1px solid var(--indigo-border);border-radius:8px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+.action-btn:hover{background:var(--indigo);color:#fff;}
+
+/* POLICY INTELLIGENCE */
+.policy-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;}
+.policy-card{background:#fff;border:1px solid var(--n200);border-radius:var(--r);padding:18px;box-shadow:var(--shadow-sm);}
+.policy-card h4{font-size:14px;font-weight:700;color:var(--n900);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.policy-insight{font-size:13px;color:var(--n700);line-height:1.6;margin-bottom:10px;}
+.policy-recommendation{background:var(--green-light);border:1px solid var(--green-border);border-radius:8px;padding:10px 12px;font-size:12.5px;color:var(--green);}
+.policy-recommendation strong{display:block;font-weight:700;margin-bottom:2px;}
+
+/* GRIEVANCE ENGINE */
+.grievance-upload{border:2px dashed var(--n200);border-radius:var(--r);padding:30px;text-align:center;cursor:pointer;transition:all 0.2s;margin-bottom:16px;}
+.grievance-upload:hover{border-color:var(--saffron);background:var(--saffron-pale);}
+.grievance-upload p{font-size:13px;color:var(--n500);margin-top:8px;}
+
+/* SCROLLBAR POLISH */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--n200);border-radius:3px;}
+
+@media(max-width:600px){
+  .dash-grid{grid-template-columns:1fr 1fr;}
+  .gov-stat-grid{grid-template-columns:1fr 1fr;}
+  .role-grid{grid-template-columns:1fr 1fr;}
+  .card{padding:16px;}
+}
+</style>
+</head>
+<body>
+
+<div class="tricolor"></div>
+<header>
+  <div class="logo-orb">🇮🇳</div>
+  <div class="logo-words">
+    <h1>Info-Bharat</h1>
+    <p>AI for Communities · Public Impact</p>
+  </div>
+  <div class="header-right">
+    <select class="lang-select" id="langSelect" onchange="setLanguage(this.value)">
+      <option value="en">🇬🇧 English</option>
+      <option value="hi">🇮🇳 हिंदी</option>
+      <option value="kn">🌸 ಕನ್ನಡ</option>
+      <option value="ta">🌺 தமிழ்</option>
+      <option value="te">🌼 తెలుగు</option>
+      <option value="mr">🎯 मराठी</option>
+      <option value="bn">🌙 বাংলা</option>
+    </select>
+    <button class="tts-btn" id="ttsBtn" onclick="toggleTTS()">🔊 <span data-i18n="listen">Listen</span></button>
+  </div>
+</header>
+
+<!-- NAV TABS -->
+<div class="nav-tabs">
+  <div class="nav-tab active" onclick="switchView('citizen')" id="tab-citizen">👤 <span data-i18n="citizen_portal">Citizen Portal</span></div>
+  <div class="nav-tab" onclick="switchView('community')" id="tab-community">🏘️ <span data-i18n="community">Community Intelligence</span></div>
+  <div class="nav-tab" onclick="switchView('government')" id="tab-government">🏛️ <span data-i18n="gov_dashboard">Government Dashboard</span> <span class="tab-badge">3</span></div>
+  <div class="nav-tab" onclick="switchView('grievance')" id="tab-grievance">📝 <span data-i18n="grievance">Rejection Reversal</span></div>
+</div>
+
+<!-- ═══════════════ CITIZEN VIEW ═══════════════ -->
+<div class="view visible" id="view-citizen">
+<div class="citizen-wrap">
+
+  <div class="journey" id="journeyBar">
+    <div class="j-step active" id="js-role">👤 <span data-i18n="role">Role</span></div>
+    <div class="j-sep">›</div>
+    <div class="j-step" id="js-context">📋 <span data-i18n="context">Context</span></div>
+    <div class="j-sep">›</div>
+    <div class="j-step" id="js-query">💬 <span data-i18n="query">Query</span></div>
+    <div class="j-sep">›</div>
+    <div class="j-step" id="js-result">🛡️ <span data-i18n="guidance">Guidance</span></div>
+  </div>
+
+  <!-- SCREEN 1: ROLE -->
+  <div class="screen visible" id="screen-role">
+    <div class="card">
+      <div class="card-eyebrow" data-i18n="step1">Step 1 of 4 · Role Identification</div>
+      <h2 data-i18n="who_are_you">Who are you today?</h2>
+      <p class="subtitle" data-i18n="role_sub">Info-Bharat tailors eligibility rules and language to your civic context.</p>
+      <div class="role-grid">
+        <button class="role-btn" onclick="selectRole(this,'student')">
+          <div class="role-emoji">📚</div>
+          <div class="role-name" data-i18n="student">Student</div>
+          <div class="role-desc" data-i18n="student_desc">Age 11–25, school or college</div>
+        </button>
+        <button class="role-btn" onclick="selectRole(this,'farmer')">
+          <div class="role-emoji">🌾</div>
+          <div class="role-name" data-i18n="farmer">Farmer</div>
+          <div class="role-desc" data-i18n="farmer_desc">Land owner or tenant</div>
+        </button>
+        <button class="role-btn" onclick="selectRole(this,'senior')">
+          <div class="role-emoji">👴</div>
+          <div class="role-name" data-i18n="senior">Senior Citizen</div>
+          <div class="role-desc" data-i18n="senior_desc">Age 60 or above</div>
+        </button>
+        <button class="role-btn" onclick="selectRole(this,'woman')">
+          <div class="role-emoji">👩</div>
+          <div class="role-name" data-i18n="women">Women / SHG</div>
+          <div class="role-desc" data-i18n="women_desc">Women-specific or SHG schemes</div>
+        </button>
+        <button class="role-btn" onclick="selectRole(this,'bpl')">
+          <div class="role-emoji">🏠</div>
+          <div class="role-name" data-i18n="bpl">BPL Household</div>
+          <div class="role-desc" data-i18n="bpl_desc">Below poverty line family</div>
+        </button>
+        <button class="role-btn" onclick="selectRole(this,'disabled')">
+          <div class="role-emoji">♿</div>
+          <div class="role-name" data-i18n="pwd">Person with Disability</div>
+          <div class="role-desc" data-i18n="pwd_desc">Registered or unregistered PwD</div>
+        </button>
+      </div>
+      <div style="margin-top:18px;">
+        <button class="btn-primary" id="roleNext" onclick="goToContext()" disabled data-i18n="continue">Continue →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: CONTEXT -->
+  <div class="screen" id="screen-context">
+    <div class="card">
+      <div class="card-eyebrow" data-i18n="step2">Step 2 of 4 · Eligibility Context</div>
+      <h2 data-i18n="tell_us">Tell us about your situation</h2>
+      <p class="subtitle" data-i18n="context_sub">Only attributes required for scheme validation are collected.</p>
+      <div class="field">
+        <label data-i18n="state">State <span>*</span></label>
+        <div class="select-wrap">
+          <select id="ctx-state">
+            <option value="" data-i18n="select_state">Select your state</option>
+            <option>Andhra Pradesh</option><option>Assam</option><option>Bihar</option>
+            <option>Chhattisgarh</option><option>Delhi</option><option>Gujarat</option>
+            <option>Haryana</option><option>Jharkhand</option><option>Karnataka</option>
+            <option>Kerala</option><option>Madhya Pradesh</option><option>Maharashtra</option>
+            <option>Odisha</option><option>Punjab</option><option>Rajasthan</option>
+            <option>Tamil Nadu</option><option>Telangana</option><option>Uttar Pradesh</option>
+            <option>West Bengal</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label data-i18n="age">Age <span>*</span></label>
+        <div class="select-wrap">
+          <select id="ctx-age">
+            <option value="" data-i18n="select_age">Select age range</option>
+            <option value="under18">Under 18</option>
+            <option value="18-25">18 – 25</option>
+            <option value="26-40">26 – 40</option>
+            <option value="41-60">41 – 60</option>
+            <option value="60+">60 and above</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label data-i18n="income">Annual Family Income <span>*</span></label>
+        <div class="select-wrap">
+          <select id="ctx-income">
+            <option value="" data-i18n="select_income">Select income bracket</option>
+            <option value="below1">Below ₹1 lakh</option>
+            <option value="1to2">₹1 – 2 lakh</option>
+            <option value="2to5">₹2 – 5 lakh</option>
+            <option value="5to8">₹5 – 8 lakh</option>
+            <option value="above8">Above ₹8 lakh</option>
+            <option value="unsure" data-i18n="not_sure">Not sure</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label data-i18n="aadhaar">Aadhaar Status</label>
+        <div class="select-wrap">
+          <select id="ctx-aadhaar">
+            <option value="">Select status</option>
+            <option value="linked">Aadhaar linked to bank</option>
+            <option value="has">Have Aadhaar, not linked</option>
+            <option value="no">No Aadhaar</option>
+            <option value="unsure">Not sure</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label data-i18n="category">Social Category</label>
+        <div class="select-wrap">
+          <select id="ctx-category">
+            <option value="">Select or skip</option>
+            <option value="general">General</option>
+            <option value="obc">OBC</option>
+            <option value="sc">SC</option>
+            <option value="st">ST</option>
+            <option value="ews">EWS</option>
+          </select>
+        </div>
+        <p class="field-hint" data-i18n="category_hint">Optional — improves matching accuracy</p>
+      </div>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="goToQuery()" data-i18n="continue">Continue →</button>
+        <button class="btn-secondary" onclick="goTo('role',0)" data-i18n="back">← Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: QUERY -->
+  <div class="screen" id="screen-query">
+    <div class="card">
+      <div class="card-eyebrow" data-i18n="step3">Step 3 of 4 · Your Query</div>
+      <h2 data-i18n="your_question">What do you need help with?</h2>
+      <p class="subtitle" data-i18n="query_sub">Describe your situation. The Trust & Integrity Engine analyses it before AI guidance.</p>
+      <div class="field">
+        <label data-i18n="situation">Your situation <span>*</span></label>
+        <textarea id="query-text" data-i18n-placeholder="query_placeholder" placeholder="e.g. I want to apply for a housing scheme. Someone told me I need to pay ₹500 to an agent..."></textarea>
+        <p class="field-hint" data-i18n="query_hint">💡 Mention previous rejections, agents, or specific schemes</p>
+      </div>
+      <div class="field">
+        <label data-i18n="prev_applied">Previous application?</label>
+        <div class="select-wrap">
+          <select id="ctx-prev">
+            <option value="no" data-i18n="first_time">No, first time</option>
+            <option value="rejected" data-i18n="was_rejected">Yes, was rejected</option>
+            <option value="pending" data-i18n="pending">Yes, pending</option>
+            <option value="partial" data-i18n="partial_benefit">Yes, partial benefit</option>
+          </select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn-primary" onclick="analyzeQuery()" data-i18n="analyze">🔍 Analyse & Get Guidance</button>
+        <button class="btn-secondary" onclick="goTo('context',1)" data-i18n="back">← Back</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: RESULTS -->
+  <div class="screen" id="screen-result">
+    <div id="loadingCard" class="loading-card">
+      <div class="spinner"></div>
+      <div class="loading-label" data-i18n="analysing">Analysing your situation...</div>
+      <p id="loadingStatus">Running Trust & Integrity Engine</p>
+    </div>
+    <div id="resultsContent" style="display:none">
+      <div id="middlemanAlert" class="middleman-alert" style="display:none">
+        <h3>⚠️ <span data-i18n="exploitation_detected">Exploitation Risk Detected</span></h3>
+        <p data-i18n="exploitation_desc">Your query mentions paying an agent. Government welfare schemes are completely free to apply for. No legitimate process requires payment.</p>
+        <div class="free-note" data-i18n="free_note">✅ All scheme applications are free. Apply directly at your nearest CSC, official portal, or gram panchayat. Anyone charging you is breaking the law.</div>
+      </div>
+      <div class="card" style="padding:18px">
+        <div class="card-eyebrow">Trust & Integrity Engine</div>
+        <div class="confidence-block" style="border:none;padding:0;margin:0">
+          <div class="confidence-header">
+            <div class="confidence-label" data-i18n="confidence_score">Eligibility Confidence Score</div>
+            <div class="confidence-value" id="confScore">—%</div>
+          </div>
+          <div class="meter-track"><div class="meter-fill" id="confMeter" style="width:0%"></div></div>
+          <div class="confidence-note" id="confNote"></div>
+        </div>
+        <div id="refusalNotice" style="display:none">
+          <div class="alert warning" style="margin-top:12px;margin-bottom:0">
+            <div class="alert-icon">🚫</div>
+            <div class="alert-body"><strong data-i18n="withheld">Recommendation withheld</strong><span data-i18n="withheld_desc">Confidence below safe threshold. The system has paused recommendations to prevent incorrect guidance.</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-eyebrow">AI Explanation Layer · Amazon Bedrock</div>
+        <div class="ai-response">
+          <div class="ai-label">🤖 <span data-i18n="ai_guidance">AI Guidance</span>
+            <button class="tts-btn" style="margin-left:auto;font-size:11px;padding:3px 9px;" onclick="speakText(document.getElementById('aiGuidanceText').textContent)">🔊</button>
+          </div>
+          <p id="aiGuidanceText"><span class="typing-dots"><span></span><span></span><span></span></span></p>
+        </div>
+      </div>
+      <div id="schemeResultsBlock">
+        <div class="card">
+          <div class="card-eyebrow" data-i18n="scheme_results">Scheme Matching Results</div>
+          <div class="section-title" id="schemesTitle"></div>
+          <p class="section-sub" id="schemesSubtitle"></p>
+          <div class="scheme-list" id="schemeList"></div>
+        </div>
+      </div>
+      <div id="rejectionBlock" style="display:none">
+        <div class="card">
+          <div class="card-eyebrow" data-i18n="rejection_analysis">Rejection Analysis</div>
+          <div class="section-title" data-i18n="why_rejected">Why your previous application may have failed</div>
+          <p class="section-sub" data-i18n="rejection_sub">Rule-based inferences from eligibility criteria — not assumptions.</p>
+          <div id="rejectionContent" class="rejection-block"></div>
+          <div class="alert info"><div class="alert-icon">💡</div><div class="alert-body"><strong data-i18n="nearmiss">Near-Miss Guidance</strong><span id="nearMissText"></span></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-eyebrow" data-i18n="journey_log">Citizen Journey Log</div>
+        <div class="journey-log"><div class="journey-log-header">📋 Session Activity</div><div id="journeyLogEntries"></div></div>
+      </div>
+      <div class="card" style="padding:18px">
+        <div class="btn-row">
+          <button class="btn-primary" onclick="restartSession()" data-i18n="new_query">🔄 New Query</button>
+          <button class="btn-secondary" onclick="window.print()" data-i18n="save_pdf">🖨️ Save PDF</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══════════════ COMMUNITY VIEW ═══════════════ -->
+<div class="view" id="view-community">
+<div class="dash-wrap">
+  <div class="card" style="margin-bottom:20px;padding:20px">
+    <div class="card-eyebrow">Community Intelligence Layer</div>
+    <h2>Anonymised Patterns Across Citizens</h2>
+    <p class="subtitle">Aggregated, anonymised data from citizen journeys revealing systemic failures — not individual cases. Updated in real time.</p>
+  </div>
+
+  <!-- STATS -->
+  <div class="dash-grid">
+    <div class="stat-card">
+      <div class="stat-label">Citizens Served</div>
+      <div class="stat-value">2,847</div>
+      <div class="stat-sub">↑ 312 this week</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Schemes Evaluated</div>
+      <div class="stat-value">11,204</div>
+      <div class="stat-sub">Across 6 scheme categories</div>
+    </div>
+    <div class="stat-card alert-card">
+      <div class="stat-label">Exploitation Alerts</div>
+      <div class="stat-value">143</div>
+      <div class="stat-sub">Middleman signals detected</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Near-Miss Citizens</div>
+      <div class="stat-value">689</div>
+      <div class="stat-sub">1 document away from eligible</div>
+    </div>
+  </div>
+
+  <!-- REJECTION HEATMAP -->
+  <div class="dash-section">
+    <h3>Rejection Heatmap by District</h3>
+    <p>Districts with abnormally high rejection rates signal systemic blocks — not individual failures.</p>
+    <table class="heatmap-table">
+      <thead>
+        <tr>
+          <th>District</th>
+          <th>State</th>
+          <th>Top Scheme</th>
+          <th>Rejection Rate</th>
+          <th>Top Reason</th>
+          <th>Severity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>Shivpuri</td><td>Madhya Pradesh</td><td>PMAY</td><td>78%</td><td>No Aadhaar-bank link</td><td><span class="heat-cell heat-critical">Critical</span></td></tr>
+        <tr><td>Nalanda</td><td>Bihar</td><td>PM-KISAN</td><td>71%</td><td>Land record mismatch</td><td><span class="heat-cell heat-critical">Critical</span></td></tr>
+        <tr><td>Dantewada</td><td>Chhattisgarh</td><td>Ayushman</td><td>65%</td><td>No CSC in 40km radius</td><td><span class="heat-cell heat-high">High</span></td></tr>
+        <tr><td>Malkangiri</td><td>Odisha</td><td>IGNDPS</td><td>58%</td><td>UDID card not issued</td><td><span class="heat-cell heat-high">High</span></td></tr>
+        <tr><td>Washim</td><td>Maharashtra</td><td>NSP</td><td>44%</td><td>Income certificate expired</td><td><span class="heat-cell heat-medium">Medium</span></td></tr>
+        <tr><td>Tumkur</td><td>Karnataka</td><td>PMMVY</td><td>28%</td><td>Bank account not active</td><td><span class="heat-cell heat-low">Low</span></td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- DISTRICT INTELLIGENCE -->
+  <div class="dash-section">
+    <h3>District Intelligence Cards</h3>
+    <p>Actionable metrics per district — for collectors, block development officers, and NGO field teams.</p>
+    <div class="district-grid">
+      <div class="district-card">
+        <h4>Shivpuri District</h4>
+        <div class="state-label">Madhya Pradesh</div>
+        <div class="district-metric"><span class="metric-label">Queries this month</span><span class="metric-val">284</span></div>
+        <div class="district-metric"><span class="metric-label">Avg confidence score</span><span class="metric-val amber">41%</span></div>
+        <div class="district-metric"><span class="metric-label">Exploitation alerts</span><span class="metric-val red">27</span></div>
+        <div class="district-metric"><span class="metric-label">Near-miss citizens</span><span class="metric-val amber">89</span></div>
+        <div class="district-metric"><span class="metric-label">CSC coverage</span><span class="metric-val red">32%</span></div>
+        <div class="district-metric"><span class="metric-label">Eligible confirmed</span><span class="metric-val green">61</span></div>
+      </div>
+      <div class="district-card">
+        <h4>Tumkur District</h4>
+        <div class="state-label">Karnataka</div>
+        <div class="district-metric"><span class="metric-label">Queries this month</span><span class="metric-val">197</span></div>
+        <div class="district-metric"><span class="metric-label">Avg confidence score</span><span class="metric-val green">72%</span></div>
+        <div class="district-metric"><span class="metric-label">Exploitation alerts</span><span class="metric-val green">4</span></div>
+        <div class="district-metric"><span class="metric-label">Near-miss citizens</span><span class="metric-val amber">38</span></div>
+        <div class="district-metric"><span class="metric-label">CSC coverage</span><span class="metric-val green">84%</span></div>
+        <div class="district-metric"><span class="metric-label">Eligible confirmed</span><span class="metric-val green">112</span></div>
+      </div>
+      <div class="district-card">
+        <h4>Nalanda District</h4>
+        <div class="state-label">Bihar</div>
+        <div class="district-metric"><span class="metric-label">Queries this month</span><span class="metric-val">341</span></div>
+        <div class="district-metric"><span class="metric-label">Avg confidence score</span><span class="metric-val red">34%</span></div>
+        <div class="district-metric"><span class="metric-label">Exploitation alerts</span><span class="metric-val red">51</span></div>
+        <div class="district-metric"><span class="metric-label">Near-miss citizens</span><span class="metric-val red">178</span></div>
+        <div class="district-metric"><span class="metric-label">CSC coverage</span><span class="metric-val amber">51%</span></div>
+        <div class="district-metric"><span class="metric-label">Eligible confirmed</span><span class="metric-val amber">47</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EXPLOITATION MAP -->
+  <div class="dash-section">
+    <h3>Middleman Exploitation Concentration</h3>
+    <p>Geographical clustering of exploitation signals — enabling targeted enforcement action.</p>
+    <div class="exploitation-list">
+      <div class="exploit-item"><div class="exploit-rank">1</div><div class="exploit-info"><div class="exploit-place">Nalanda, Bihar</div><div class="exploit-state">PM-KISAN, PMAY</div></div><div class="exploit-bar-wrap"><div class="exploit-bar"><div class="exploit-fill" style="width:91%"></div></div><div class="exploit-pct">91% of queries mention agent payment</div></div></div>
+      <div class="exploit-item"><div class="exploit-rank">2</div><div class="exploit-info"><div class="exploit-place">Shivpuri, MP</div><div class="exploit-state">PMAY, Ayushman</div></div><div class="exploit-bar-wrap"><div class="exploit-bar"><div class="exploit-fill" style="width:74%"></div></div><div class="exploit-pct">74%</div></div></div>
+      <div class="exploit-item"><div class="exploit-rank">3</div><div class="exploit-info"><div class="exploit-place">Dantewada, CG</div><div class="exploit-state">Ayushman Bharat</div></div><div class="exploit-bar-wrap"><div class="exploit-bar"><div class="exploit-fill" style="width:61%"></div></div><div class="exploit-pct">61%</div></div></div>
+      <div class="exploit-item"><div class="exploit-rank">4</div><div class="exploit-info"><div class="exploit-place">Malkangiri, Odisha</div><div class="exploit-state">IGNDPS, PMAY</div></div><div class="exploit-bar-wrap"><div class="exploit-bar"><div class="exploit-fill" style="width:48%"></div></div><div class="exploit-pct">48%</div></div></div>
+    </div>
+  </div>
+
+  <!-- SCHEME PERFORMANCE -->
+  <div class="dash-section">
+    <h3>Scheme Performance vs Design Intent</h3>
+    <p>Where schemes are reaching intended beneficiaries vs where they are failing on the ground.</p>
+    <div class="perf-list">
+      <div class="perf-item"><div class="perf-top"><span class="perf-name">PM-KISAN Samman Nidhi</span><span class="perf-tag" style="background:var(--red-light);color:var(--red)">Underperforming</span></div><div class="perf-bar-track"><div class="perf-bar-fill" style="width:38%;background:linear-gradient(90deg,var(--red),#EF4444)"></div></div><div class="perf-stats"><span class="perf-stat">Reach: <strong>38%</strong></span><span class="perf-stat">Target: <strong>85%</strong></span><span class="perf-stat">Top barrier: <strong>Land records</strong></span></div></div>
+      <div class="perf-item"><div class="perf-top"><span class="perf-name">Ayushman Bharat – PM-JAY</span><span class="perf-tag" style="background:var(--amber-light);color:var(--amber)">Moderate</span></div><div class="perf-bar-track"><div class="perf-bar-fill" style="width:61%;background:linear-gradient(90deg,var(--amber),#F59E0B)"></div></div><div class="perf-stats"><span class="perf-stat">Reach: <strong>61%</strong></span><span class="perf-stat">Target: <strong>90%</strong></span><span class="perf-stat">Top barrier: <strong>Aadhaar linkage</strong></span></div></div>
+      <div class="perf-item"><div class="perf-top"><span class="perf-name">National Scholarship Portal</span><span class="perf-tag" style="background:var(--green-light);color:var(--green)">On Track</span></div><div class="perf-bar-track"><div class="perf-bar-fill" style="width:79%;background:linear-gradient(90deg,var(--green),#22C55E)"></div></div><div class="perf-stats"><span class="perf-stat">Reach: <strong>79%</strong></span><span class="perf-stat">Target: <strong>80%</strong></span><span class="perf-stat">Top barrier: <strong>Deadline awareness</strong></span></div></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════ GOVERNMENT VIEW ═══════════════ -->
+<div class="view" id="view-government">
+<div class="gov-wrap">
+  <div class="gov-header">
+    <div class="gov-header-inner">
+      <div class="gov-title">Government Intelligence Dashboard</div>
+      <div class="gov-subtitle">Secure · Anonymised · Real-time Policy Feedback Loop</div>
+      <div class="gov-sub-tabs">
+        <div class="gov-sub-tab active" onclick="switchGovTab('collector')" id="gtab-collector">🏛️ District Collector</div>
+        <div class="gov-sub-tab" onclick="switchGovTab('secretary')" id="gtab-secretary">📊 State Secretary</div>
+        <div class="gov-sub-tab" onclick="switchGovTab('ministry')" id="gtab-ministry">🇮🇳 Central Ministry</div>
+      </div>
+    </div>
+  </div>
+  <div class="gov-body">
+
+    <!-- COLLECTOR VIEW -->
+    <div class="gov-sub-view visible" id="gsub-collector">
+      <div class="gov-stat-grid">
+        <div class="gov-stat"><div class="gov-stat-icon">👥</div><div class="gov-stat-val">284</div><div class="gov-stat-label">Citizens in your district this month</div><div class="gov-stat-change up">↑ 34 vs last month</div></div>
+        <div class="gov-stat"><div class="gov-stat-icon">⚠️</div><div class="gov-stat-val">27</div><div class="gov-stat-label">Exploitation alerts</div><div class="gov-stat-change up">↑ 8 vs last month</div></div>
+        <div class="gov-stat"><div class="gov-stat-icon">📍</div><div class="gov-stat-val">32%</div><div class="gov-stat-label">CSC coverage in panchayats</div><div class="gov-stat-change up">68% uncovered</div></div>
+        <div class="gov-stat"><div class="gov-stat-icon">✅</div><div class="gov-stat-val">61</div><div class="gov-stat-label">Eligible citizens confirmed</div><div class="gov-stat-change down">↑ 12 this week</div></div>
+      </div>
+
+      <div class="section-title">Anomaly Alerts — Immediate Action Required</div>
+      <p class="section-sub">Detected by the pattern engine. Each alert is triggered by statistical deviation from baseline.</p>
+      <div class="anomaly-list">
+        <div class="anomaly-item">
+          <div class="anomaly-icon">🚨</div>
+          <div>
+            <div class="anomaly-title">Sudden 3x spike in PMAY rejections — Shivpuri Block 4</div>
+            <div class="anomaly-desc">91 rejections in 14 days vs baseline of 28. Pattern suggests a local processing issue or documentation bottleneck at block office level.</div>
+            <div class="anomaly-meta">Detected: 2 hours ago · Confidence: 94%</div>
+          </div>
+          <div class="anomaly-action"><button class="action-btn">Investigate</button></div>
+        </div>
+        <div class="anomaly-item warning">
+          <div class="anomaly-icon">💸</div>
+          <div>
+            <div class="anomaly-title">High middleman concentration in 3 gram panchayats</div>
+            <div class="anomaly-desc">Panchayats Karera, Pohri, and Narwar show 74% of queries mentioning agent payments. Suggests organised exploitation network.</div>
+            <div class="anomaly-meta">Detected: Yesterday · Confidence: 87%</div>
+          </div>
+          <div class="anomaly-action"><button class="action-btn">Alert Police</button></div>
+        </div>
+        <div class="anomaly-item info">
+          <div class="anomaly-icon">🏥</div>
+          <div>
+            <div class="anomaly-title">689 near-miss citizens — one document away from Ayushman eligibility</div>
+            <div class="anomaly-desc">All lack active bank account linked to Aadhaar. A single document camp could unlock benefits for this entire cohort immediately.</div>
+            <div class="anomaly-meta">Detected: 3 days ago · Opportunity</div>
+          </div>
+          <div class="anomaly-action"><button class="action-btn">Plan Camp</button></div>
+        </div>
+      </div>
+
+      <div class="section-title">Policy Intelligence</div>
+      <p class="section-sub">Systemic insights derived from citizen journey patterns — not anecdotal reports.</p>
+      <div class="policy-grid">
+        <div class="policy-card">
+          <h4>🏦 Banking Infrastructure Gap</h4>
+          <div class="policy-insight">78% of PMAY rejections in rural blocks trace to Aadhaar not being linked to a bank account — not income ineligibility. Citizens are eligible but cannot receive DBT.</div>
+          <div class="policy-recommendation"><strong>Recommendation</strong>Organise Aadhaar-bank linkage camps at 3 gram panchayats. Estimated beneficiaries unlocked: 234.</div>
+        </div>
+        <div class="policy-card">
+          <h4>📄 Land Record Friction</h4>
+          <div class="policy-insight">PM-KISAN rejections spike every February-March when land records are under annual revision. Eligible farmers are rejected due to temporary data unavailability.</div>
+          <div class="policy-recommendation"><strong>Recommendation</strong>Create a temporary eligibility bridge period during land record revision cycles — notify state revenue department.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SECRETARY VIEW -->
+    <div class="gov-sub-view" id="gsub-secretary">
+      <div class="gov-stat-grid">
+        <div class="gov-stat"><div class="gov-stat-icon">🗺️</div><div class="gov-stat-val">38</div><div class="gov-stat-label">Districts monitored</div><div class="gov-stat-change down">↑ 5 new this quarter</div></div>
+        <div class="gov-stat"><div class="gov-stat-icon">📉</div><div class="gov-stat-val">58%</div><div class="gov-stat-label">Avg scheme reach vs target</div><div class="gov-stat-change up">↓ 12% below target</div></div>
+        <div class="gov-stat"><div class="gov-stat-icon">🎯</div><div class="gov-stat-val">4,210</div><div class="gov-stat-label">Near-miss citizens statewide</div><div class="gov-stat-change up">Addressable this quarter</div></div>
+        <div class="gov-stat"><div class="gov-stat-icon">📋</div><div class="gov-stat-val">3</div><div class="gov-stat-label">Schemes requiring rule revision</div><div class="gov-stat-change up">Based on friction data</div></div>
+      </div>
+
+      <div class="section-title">Cross-District Comparison</div>
+      <p class="section-sub">Which districts are excelling and which need intervention — based on citizen outcome data, not officer reports.</p>
+      <table class="heatmap-table">
+        <thead><tr><th>District</th><th>Confidence Avg</th><th>Eligible Rate</th><th>Exploitation</th><th>CSC Coverage</th><th>Priority</th></tr></thead>
+        <tbody>
+          <tr><td>Nalanda</td><td>34%</td><td>14%</td><td>🔴 High</td><td>51%</td><td><span class="heat-cell heat-critical">Urgent</span></td></tr>
+          <tr><td>Shivpuri</td><td>41%</td><td>21%</td><td>🔴 High</td><td>32%</td><td><span class="heat-cell heat-critical">Urgent</span></td></tr>
+          <tr><td>Dantewada</td><td>47%</td><td>29%</td><td>🟡 Medium</td><td>45%</td><td><span class="heat-cell heat-high">High</span></td></tr>
+          <tr><td>Washim</td><td>61%</td><td>48%</td><td>🟡 Medium</td><td>67%</td><td><span class="heat-cell heat-medium">Medium</span></td></tr>
+          <tr><td>Tumkur</td><td>72%</td><td>57%</td><td>🟢 Low</td><td>84%</td><td><span class="heat-cell heat-low">Good</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- MINISTRY VIEW -->
+    <div class="gov-sub-view" id="gsub-ministry">
+      <div class="gov-stat-grid">
+        <div class="gov-stat"><div class="gov-stat-icon">🇮🇳</div><div class="gov-stat-val">12</div><div class="gov-stat-label">States monitored</div></div>
+        <div class="gov-stat"><div class="gov-stat-icon">💰</div><div class="gov-stat-val">₹840Cr</div><div class="gov-stat-label">Estimated undelivered benefits</div><div class="gov-stat-change up">Due to systemic blocks</div></div>
+        <div class="gov-stat"><div class="gov-stat-icon">🔍</div><div class="gov-stat-val">7</div><div class="gov-stat-label">Scheme rules flagged for revision</div></div>
+        <div class="gov-stat"><div class="gov-stat-icon">🚨</div><div class="gov-stat-val">2</div><div class="gov-stat-label">States with exploitation spikes</div><div class="gov-stat-change up">Requires field audit</div></div>
+      </div>
+
+      <div class="section-title">National Scheme Performance</div>
+      <p class="section-sub">Where central schemes are reaching intended beneficiaries and where policy design needs revision.</p>
+      <div class="policy-grid">
+        <div class="policy-card">
+          <h4>🌾 PM-KISAN Design Flaw Detected</h4>
+          <div class="policy-insight">Land record revision cycles in 6 states cause February-March rejection spikes annually. This is a structural policy issue — not implementation failure. 280,000 eligible farmers affected each cycle.</div>
+          <div class="policy-recommendation"><strong>Policy Recommendation</strong>Introduce a 45-day eligibility bridge period during state land record revisions. Estimated annual beneficiary protection: 280,000 farmers.</div>
+        </div>
+        <div class="policy-card">
+          <h4>🏥 Ayushman Last-Mile Gap</h4>
+          <div class="policy-insight">39% of BPL households in tribal districts cannot access Ayushman due to absence of empanelled hospitals within 50km. Scheme design assumes hospital proximity that doesn't exist in these geographies.</div>
+          <div class="policy-recommendation"><strong>Policy Recommendation</strong>Expand mobile health unit empanelment. Pilot reimbursement at primary health centres for tribal districts in 4 states.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- ═══════════════ GRIEVANCE / REJECTION REVERSAL ═══════════════ -->
+<div class="view" id="view-grievance">
+<div class="citizen-wrap">
+  <div class="card">
+    <div class="card-eyebrow">Rejection Reversal Engine</div>
+    <h2>Turn your rejection into a grievance</h2>
+    <p class="subtitle">Describe your rejection. The system identifies whether it was a legitimate denial or a bureaucratic error — and generates a structured grievance letter you can submit.</p>
+    <div class="field">
+      <label>Which scheme were you rejected for? <span>*</span></label>
+      <div class="select-wrap">
+        <select id="grv-scheme">
+          <option value="">Select scheme</option>
+          <option>PM Awas Yojana (PMAY)</option>
+          <option>PM-KISAN Samman Nidhi</option>
+          <option>Ayushman Bharat – PM-JAY</option>
+          <option>National Scholarship Portal</option>
+          <option>IGNDPS Disability Pension</option>
+          <option>PM Matru Vandana Yojana</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>What reason was given for rejection? <span>*</span></label>
+      <textarea id="grv-reason" placeholder="e.g. They said my income was too high but I earn only ₹80,000 per year. The form said I need a certificate I never heard of..."></textarea>
+    </div>
+    <div class="field">
+      <label>Your district and state</label>
+      <input type="text" id="grv-location" placeholder="e.g. Tumkur, Karnataka">
+    </div>
+    <div class="btn-row">
+      <button class="btn-primary" onclick="analyzeGrievance()">⚖️ Analyse Rejection</button>
+    </div>
+  </div>
+
+  <div id="grievanceResult" style="display:none">
+    <div class="card">
+      <div class="card-eyebrow">Rejection Analysis</div>
+      <div id="grievanceAnalysis"></div>
+    </div>
+    <div class="card">
+      <div class="card-eyebrow">AI Grievance Letter · Ready to Submit</div>
+      <div class="ai-response">
+        <div class="ai-label">📝 Generated Grievance Letter
+          <button class="tts-btn" style="margin-left:auto;font-size:11px;padding:3px 9px;" onclick="speakText(document.getElementById('grievanceLetter').textContent)">🔊</button>
+        </div>
+        <p id="grievanceLetter"><span class="typing-dots"><span></span><span></span><span></span></span></p>
+      </div>
+      <div class="alert success" style="margin-top:12px;margin-bottom:0">
+        <div class="alert-icon">📮</div>
+        <div class="alert-body"><strong>Where to submit</strong>Submit at your district grievance portal, Chief Minister helpline, or pgportal.gov.in. Keep a copy with acknowledgement number.</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+// ═══ STATE ═══
+const state = {
+  role:null, context:{}, query:'', sessionLog:[],
+  currentLang:'en', ttsActive:false, currentUtterance:null
+};
+
+// ═══ TRANSLATIONS ═══
+const i18n = {
+  en:{
+    citizen_portal:'Citizen Portal', community:'Community Intelligence',
+    gov_dashboard:'Government Dashboard', grievance:'Rejection Reversal',
+    role:'Role', context:'Context', query:'Query', guidance:'Guidance',
+    step1:'Step 1 of 4 · Role Identification', step2:'Step 2 of 4 · Eligibility Context',
+    step3:'Step 3 of 4 · Your Query',
+    who_are_you:'Who are you today?',
+    role_sub:'Info-Bharat tailors eligibility rules and language to your civic context.',
+    tell_us:'Tell us about your situation',
+    your_question:'What do you need help with?',
+    student:'Student', farmer:'Farmer', senior:'Senior Citizen',
+    women:'Women / SHG', bpl:'BPL Household', pwd:'Person with Disability',
+    student_desc:'Age 11–25, school or college', farmer_desc:'Land owner or tenant',
+    senior_desc:'Age 60 or above', women_desc:'Women-specific or SHG schemes',
+    bpl_desc:'Below poverty line family', pwd_desc:'Registered or unregistered PwD',
+    continue:'Continue →', back:'← Back', analyze:'🔍 Analyse & Get Guidance',
+    listen:'Listen', analysing:'Analysing your situation...',
+    confidence_score:'Eligibility Confidence Score',
+    exploitation_detected:'Exploitation Risk Detected',
+    ai_guidance:'AI Guidance', journey_log:'Citizen Journey Log',
+    new_query:'🔄 New Query', save_pdf:'🖨️ Save PDF',
+    state:'State', age:'Age', income:'Annual Family Income',
+    aadhaar:'Aadhaar Status', category:'Social Category',
+    situation:'Your situation', query_hint:'💡 Mention previous rejections, agents, or specific schemes',
+    scheme_results:'Scheme Matching Results',
+  },
+  hi:{
+    citizen_portal:'नागरिक पोर्टल', community:'सामुदायिक बुद्धिमत्ता',
+    gov_dashboard:'सरकारी डैशबोर्ड', grievance:'अस्वीकृति उलटाव',
+    role:'भूमिका', context:'संदर्भ', query:'प्रश्न', guidance:'मार्गदर्शन',
+    step1:'चरण 1 / 4 · भूमिका पहचान', step2:'चरण 2 / 4 · पात्रता संदर्भ',
+    step3:'चरण 3 / 4 · आपका प्रश्न',
+    who_are_you:'आप आज कौन हैं?',
+    role_sub:'Info-Bharat आपके नागरिक संदर्भ के अनुसार पात्रता नियम और भाषा तैयार करता है।',
+    tell_us:'अपनी स्थिति बताएं',
+    your_question:'आपको किस चीज़ में मदद चाहिए?',
+    student:'छात्र', farmer:'किसान', senior:'वरिष्ठ नागरिक',
+    women:'महिला / SHG', bpl:'BPL परिवार', pwd:'विकलांग व्यक्ति',
+    student_desc:'आयु 11-25, स्कूल या कॉलेज', farmer_desc:'भूमि मालिक या किरायेदार',
+    senior_desc:'60 वर्ष या उससे अधिक', women_desc:'महिला-विशिष्ट या SHG योजनाएं',
+    bpl_desc:'गरीबी रेखा से नीचे का परिवार', pwd_desc:'पंजीकृत या अपंजीकृत PwD',
+    continue:'जारी रखें →', back:'← वापस', analyze:'🔍 विश्लेषण करें और मार्गदर्शन पाएं',
+    listen:'सुनें', analysing:'आपकी स्थिति का विश्लेषण हो रहा है...',
+    confidence_score:'पात्रता विश्वास स्कोर',
+    exploitation_detected:'शोषण जोखिम का पता चला',
+    ai_guidance:'AI मार्गदर्शन', journey_log:'नागरिक यात्रा लॉग',
+    new_query:'🔄 नई क्वेरी', save_pdf:'🖨️ PDF सहेजें',
+    state:'राज्य', age:'आयु', income:'वार्षिक पारिवारिक आय',
+    aadhaar:'आधार स्थिति', category:'सामाजिक श्रेणी',
+    situation:'आपकी स्थिति', query_hint:'💡 पिछली अस्वीकृतियां, दलाल, या विशिष्ट योजनाएं बताएं',
+    scheme_results:'योजना मिलान परिणाम',
+  },
+  kn:{
+    citizen_portal:'ನಾಗರಿಕ ಪೋರ್ಟಲ್', community:'ಸಮುದಾಯ ಬುದ್ಧಿಮತ್ತೆ',
+    gov_dashboard:'ಸರ್ಕಾರಿ ಡ್ಯಾಶ್‌ಬೋರ್ಡ್', grievance:'ನಿರಾಕರಣೆ ರಿವರ್ಸಲ್',
+    role:'ಪಾತ್ರ', context:'ಸಂದರ್ಭ', query:'ಪ್ರಶ್ನೆ', guidance:'ಮಾರ್ಗದರ್ಶನ',
+    who_are_you:'ನೀವು ಇಂದು ಯಾರು?',
+    role_sub:'Info-Bharat ನಿಮ್ಮ ನಾಗರಿಕ ಸಂದರ್ಭಕ್ಕೆ ಅನುಗುಣವಾಗಿ ಮಾರ್ಗದರ್ಶನ ನೀಡುತ್ತದೆ.',
+    tell_us:'ನಿಮ್ಮ ಪರಿಸ್ಥಿತಿ ತಿಳಿಸಿ',
+    your_question:'ನಿಮಗೆ ಯಾವ ವಿಷಯದಲ್ಲಿ ಸಹಾಯ ಬೇಕು?',
+    student:'ವಿದ್ಯಾರ್ಥಿ', farmer:'ರೈತ', senior:'ಹಿರಿಯ ನಾಗರಿಕ',
+    women:'ಮಹಿಳೆ / SHG', bpl:'BPL ಕುಟುಂಬ', pwd:'ವಿಕಲಾಂಗ ವ್ಯಕ್ತಿ',
+    student_desc:'11-25 ವಯಸ್ಸು', farmer_desc:'ಭೂ ಮಾಲೀಕ ಅಥವಾ ಗೇಣಿದಾರ',
+    senior_desc:'60 ವರ್ಷ ಅಥವಾ ಮೇಲ್ಪಟ್ಟ', women_desc:'ಮಹಿಳಾ-ನಿರ್ದಿಷ್ಟ ಯೋಜನೆಗಳು',
+    bpl_desc:'ಬಡತನ ರೇಖೆಗಿಂತ ಕೆಳಗಿನ ಕುಟುಂಬ', pwd_desc:'ನೋಂದಾಯಿತ ಅಥವಾ ಅನ್-ನೋಂದಾಯಿತ',
+    continue:'ಮುಂದುವರಿಯಿರಿ →', back:'← ಹಿಂದೆ', analyze:'🔍 ವಿಶ್ಲೇಷಿಸಿ',
+    listen:'ಕೇಳಿ', analysing:'ನಿಮ್ಮ ಪರಿಸ್ಥಿತಿಯನ್ನು ವಿಶ್ಲೇಷಿಸಲಾಗುತ್ತಿದೆ...',
+    confidence_score:'ಅರ್ಹತೆ ವಿಶ್ವಾಸ ಸ್ಕೋರ್',
+    exploitation_detected:'ಶೋಷಣೆ ಅಪಾಯ ಪತ್ತೆಯಾಗಿದೆ',
+    ai_guidance:'AI ಮಾರ್ಗದರ್ಶನ', journey_log:'ನಾಗರಿಕ ಯಾತ್ರೆ ದಾಖಲೆ',
+    new_query:'🔄 ಹೊಸ ಪ್ರಶ್ನೆ', save_pdf:'🖨️ PDF ಉಳಿಸಿ',
+    state:'ರಾಜ್ಯ', age:'ವಯಸ್ಸು', income:'ವಾರ್ಷಿಕ ಕೌಟುಂಬಿಕ ಆದಾಯ',
+    situation:'ನಿಮ್ಮ ಪರಿಸ್ಥಿತಿ', query_hint:'💡 ಹಿಂದಿನ ನಿರಾಕರಣೆಗಳನ್ನು, ದಲ್ಲಾಳಿಗಳನ್ನು ತಿಳಿಸಿ',
+    scheme_results:'ಯೋಜನೆ ಹೊಂದಾಣಿಕೆ ಫಲಿತಾಂಶ',
+  },
+  ta:{
+    citizen_portal:'குடிமக்கள் போர்டல்', community:'சமுதாய நுண்ணறிவு',
+    who_are_you:'நீங்கள் யார்?', tell_us:'உங்கள் நிலைமையை சொல்லுங்கள்',
+    your_question:'உங்களுக்கு என்ன உதவி வேண்டும்?',
+    student:'மாணவர்', farmer:'விவசாயி', senior:'மூத்த குடிமகன்',
+    women:'பெண்கள் / SHG', bpl:'BPL குடும்பம்', pwd:'மாற்றுத்திறனாளி',
+    continue:'தொடரவும் →', back:'← பின்செல்', analyze:'🔍 பகுப்பாய்வு செய்',
+    listen:'கேளுங்கள்', guidance:'வழிகாட்டுதல்',
+    confidence_score:'தகுதி நம்பிக்கை மதிப்பெண்',
+  },
+};
+
+function t(key) {
+  const lang = state.currentLang;
+  return (i18n[lang] && i18n[lang][key]) || (i18n['en'] && i18n['en'][key]) || key;
+}
+
+function setLanguage(lang) {
+  state.currentLang = lang;
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    const val = t(key);
+    if (val) el.textContent = val;
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    const val = t(key);
+    if (val) el.placeholder = val;
+  });
+  // Set lang for TTS
+  document.documentElement.lang = lang === 'hi' ? 'hi-IN' : lang === 'kn' ? 'kn-IN' : lang === 'ta' ? 'ta-IN' : lang === 'te' ? 'te-IN' : lang === 'mr' ? 'mr-IN' : lang === 'bn' ? 'bn-IN' : 'en-IN';
+}
+
+// ═══ TTS ═══
+function speakText(text) {
+  if (!text || text.trim() === '') return;
+  window.speechSynthesis.cancel();
+  const utter = new SpeechSynthesisUtterance(text);
+  const langMap = {en:'en-IN',hi:'hi-IN',kn:'kn-IN',ta:'ta-IN',te:'te-IN',mr:'mr-IN',bn:'bn-IN'};
+  utter.lang = langMap[state.currentLang] || 'en-IN';
+  utter.rate = 0.9;
+  utter.onend = () => { state.ttsActive = false; document.getElementById('ttsBtn').classList.remove('speaking'); };
+  state.currentUtterance = utter;
+  state.ttsActive = true;
+  document.getElementById('ttsBtn').classList.add('speaking');
+  window.speechSynthesis.speak(utter);
+}
+
+function toggleTTS() {
+  if (state.ttsActive) {
+    window.speechSynthesis.cancel();
+    state.ttsActive = false;
+    document.getElementById('ttsBtn').classList.remove('speaking');
+  } else {
+    // Read current visible content
+    const aiText = document.getElementById('aiGuidanceText');
+    if (aiText && aiText.closest('.view.visible')) {
+      speakText(aiText.textContent);
+    } else {
+      speakText(t('who_are_you') + '. ' + t('role_sub'));
+    }
+  }
+}
+
+// ═══ NAVIGATION ═══
+function switchView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('visible'));
+  document.getElementById('view-' + name).classList.add('visible');
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function switchGovTab(name) {
+  document.querySelectorAll('.gov-sub-view').forEach(v => v.classList.remove('visible'));
+  document.getElementById('gsub-' + name).classList.add('visible');
+  document.querySelectorAll('.gov-sub-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('gtab-' + name).classList.add('active');
+}
+
+function goTo(screenId, stepIdx) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('visible'));
+  document.getElementById('screen-' + screenId).classList.add('visible');
+  ['js-role','js-context','js-query','js-result'].forEach((s,i) => {
+    const el = document.getElementById(s);
+    el.classList.remove('active','done');
+    if (i < stepIdx) el.classList.add('done');
+    else if (i === stepIdx) el.classList.add('active');
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ═══ CITIZEN FLOW ═══
+function selectRole(btn, role) {
+  document.querySelectorAll('.role-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  state.role = role;
+  document.getElementById('roleNext').disabled = false;
+}
+
+function goToContext() {
+  if (!state.role) return;
+  addLog('blue', `Role: ${getRoleLabel(state.role)}`);
+  goTo('context', 1);
+}
+
+function goToQuery() {
+  const s = document.getElementById('ctx-state').value;
+  const a = document.getElementById('ctx-age').value;
+  const inc = document.getElementById('ctx-income').value;
+  if (!s || !a || !inc) { alert('Please fill State, Age, and Income.'); return; }
+  state.context = {
+    state: s, age: a, income: inc,
+    aadhaar: document.getElementById('ctx-aadhaar').value,
+    category: document.getElementById('ctx-category').value
+  };
+  addLog('blue', `Context: ${s}, age ${a}, income ${inc}`);
+  goTo('query', 2);
+}
+
+async function analyzeQuery() {
+  const queryText = document.getElementById('query-text').value.trim();
+  if (!queryText || queryText.length < 8) { alert('Please describe your situation.'); return; }
+  state.query = queryText;
+  addLog('blue', 'Query submitted');
+  goTo('result', 3);
+  document.getElementById('loadingCard').style.display = 'block';
+  document.getElementById('resultsContent').style.display = 'none';
+
+  await delay(600); setLoadingStatus('🔍 Running middleman detection...');
+  const hasMiddleman = detectMiddleman(queryText);
+  await delay(700); setLoadingStatus('📊 Computing confidence score...');
+  const confidence = computeConfidence();
+  await delay(700); setLoadingStatus('🗂️ Matching scheme database...');
+  const schemes = matchSchemes();
+  await delay(500); setLoadingStatus('🤖 Generating AI explanation...');
+
+  document.getElementById('loadingCard').style.display = 'none';
+  document.getElementById('resultsContent').style.display = 'block';
+
+  renderMiddleman(hasMiddleman);
+  renderConfidence(confidence);
+  renderSchemes(schemes, confidence);
+  renderRejection();
+  renderJourneyLog();
+  await callAI(queryText, schemes, confidence, hasMiddleman);
+}
+
+function detectMiddleman(text) {
+  const t = text.toLowerCase();
+  return ['paid','agent','broker','₹','rs.','rupee','charge','fee','commission','bribe','dalal','middleman','someone filed','person helped'].some(k => t.includes(k));
+}
+
+function computeConfidence() {
+  let v = 0;
+  if (state.context.state) v++;
+  if (state.context.age) v++;
+  if (state.context.income && state.context.income !== 'unsure') v++;
+  if (state.context.aadhaar && state.context.aadhaar !== 'unsure') v++;
+  if (state.context.category) v++;
+  return Math.round((v/5)*100);
+}
+
+function matchSchemes() {
+  const {role, context} = state;
+  const {income, aadhaar} = context;
+  const schemes = [
+    {id:'pmay',name:'PM Awas Yojana',ministry:'Housing & Urban Affairs',roles:['bpl','farmer','woman'],incomeReq:['below1','1to2'],aadhaarReq:true,nextsteps:'Apply at CSC or pmayg.nic.in with Aadhaar, income certificate, and land documents.'},
+    {id:'pmkisan',name:'PM-KISAN Samman Nidhi',ministry:'Agriculture & Farmers Welfare',roles:['farmer'],incomeReq:['below1','1to2','2to5'],aadhaarReq:true,nextsteps:'Register at pmkisan.gov.in or nearest gram panchayat.'},
+    {id:'nsp',name:'National Scholarship Portal',ministry:'Ministry of Education',roles:['student'],incomeReq:['below1','1to2','2to5'],aadhaarReq:false,nextsteps:'Register at scholarships.gov.in before deadline.'},
+    {id:'ayushman',name:'Ayushman Bharat – PM-JAY',ministry:'Health & Family Welfare',roles:['bpl','senior','disabled'],incomeReq:['below1','1to2'],aadhaarReq:true,nextsteps:'Check eligibility at pmjay.gov.in. No premium required.'},
+    {id:'igndps',name:'IGNDPS Disability Pension',ministry:'Social Justice',roles:['disabled'],incomeReq:['below1','1to2'],aadhaarReq:true,nextsteps:'Apply at District Social Welfare Office with UDID card.'},
+    {id:'pmmvy',name:'PM Matru Vandana Yojana',ministry:'Women & Child Development',roles:['woman'],incomeReq:['below1','1to2','2to5'],aadhaarReq:true,nextsteps:'Register at nearest Anganwadi with Aadhaar and bank passbook.'},
+  ];
+
+  const relevant = schemes.filter(s => s.roles.includes(role));
+  if (!relevant.length) return [{id:'generic',name:'General Central Schemes',ministry:'Multiple Ministries',eligible:'partial',explanation:'Your role has limited pre-loaded schemes. The full platform indexes 1,200+ schemes.',nextsteps:'Visit myscheme.gov.in or nearest CSC.',nearMiss:null}];
+
+  return relevant.map(s => {
+    const incomeOk = s.incomeReq.includes(income);
+    const aadhaarLinked = aadhaar === 'linked';
+    const aadhaarHas = aadhaar === 'has';
+    let status, explanation, nearMiss = null;
+
+    if (income === 'unsure') {
+      status = 'refused';
+      explanation = `Cannot evaluate ${s.name} — income bracket unverified. The refusal engine requires confirmed income before proceeding.`;
+      nearMiss = 'Obtain an income certificate from gram panchayat or tehsildar and return.';
+    } else if (incomeOk) {
+      if (aadhaarLinked) {
+        status = 'eligible';
+        explanation = `Your profile meets core eligibility criteria for ${s.name} based on income and identity verification.`;
+      } else if (aadhaarHas && s.aadhaarReq) {
+        status = 'partial';
+        explanation = `Income qualifies for ${s.name} but Aadhaar is not linked to bank account — required for Direct Benefit Transfer.`;
+        nearMiss = 'Link Aadhaar to bank at any branch or post office to unlock full eligibility.';
+      } else if (!s.aadhaarReq) {
+        status = 'eligible';
+        explanation = `Your profile meets eligibility criteria for ${s.name}. Aadhaar linkage not required for this scheme.`;
+      } else {
+        status = 'partial';
+        explanation = `Income qualifies but Aadhaar status needs clarification for ${s.name}.`;
+        nearMiss = 'Clarify Aadhaar status to complete verification.';
+      }
+    } else {
+      status = 'ineligible';
+      explanation = `Your income bracket exceeds the threshold for ${s.name}, which targets lower income groups.`;
+      if (['2to5'].includes(income)) nearMiss = 'Some state variants have higher income limits — check your state welfare department.';
+    }
+    return {...s, eligible:status, explanation, nearMiss};
+  });
+}
+
+function renderMiddleman(detected) {
+  const el = document.getElementById('middlemanAlert');
+  el.style.display = detected ? 'block' : 'none';
+  if (detected) addLog('red','⚠️ Exploitation risk detected — agent payment mentioned');
+}
+
+function renderConfidence(score) {
+  document.getElementById('confScore').textContent = score + '%';
+  const fill = document.getElementById('confMeter');
+  const note = document.getElementById('confNote');
+  fill.classList.remove('high','medium','low');
+  setTimeout(() => {
+    fill.style.width = score + '%';
+    if (score >= 80) { fill.classList.add('high'); note.textContent = 'High confidence — all key attributes verified.'; addLog('green',`Confidence: ${score}% — active`); }
+    else if (score >= 50) { fill.classList.add('medium'); note.textContent = 'Medium confidence — some attributes unverified.'; addLog('amber',`Confidence: ${score}% — partial`); }
+    else { fill.classList.add('low'); note.textContent = 'Low confidence — recommendations withheld to prevent misguidance.'; document.getElementById('refusalNotice').style.display = 'block'; addLog('red',`Confidence: ${score}% — refusal active`); }
+  }, 200);
+}
+
+function renderSchemes(schemes, confidence) {
+  const list = document.getElementById('schemeList');
+  const title = document.getElementById('schemesTitle');
+  const sub = document.getElementById('schemesSubtitle');
+  if (confidence < 40) {
+    title.textContent = 'Scheme evaluation paused';
+    sub.textContent = 'Higher confidence required before recommendations can be shown safely.';
+    list.innerHTML = `<div class="alert warning"><div class="alert-icon">🚫</div><div class="alert-body"><strong>Refusal active</strong>Complete your profile to receive scheme guidance.</div></div>`;
+    return;
+  }
+  title.textContent = `${schemes.length} scheme${schemes.length!==1?'s':''} evaluated`;
+  sub.textContent = 'Rule-based eligibility results. AI explanation follows each.';
+  const badgeClass = {eligible:'badge-eligible',partial:'badge-partial',ineligible:'badge-ineligible',refused:'badge-refused'};
+  const badgeText = {eligible:'✓ Eligible',partial:'◐ Near-Miss',ineligible:'✗ Not Eligible',refused:'⏸ Withheld'};
+  list.innerHTML = schemes.map(s => `
+    <div class="scheme-card ${s.eligible}">
+      <div class="scheme-top">
+        <div><div class="scheme-name">${s.name}</div><div class="scheme-ministry">${s.ministry}</div></div>
+        <span class="scheme-badge ${badgeClass[s.eligible]}">${badgeText[s.eligible]}</span>
+      </div>
+      <div class="scheme-explanation">${s.explanation}</div>
+      ${s.nearMiss ? `<div class="scheme-nearmiss"><strong>Near-Miss:</strong> ${s.nearMiss}</div>` : ''}
+      ${s.eligible==='eligible' ? `<div class="scheme-nextsteps">📋 <strong>Next Steps:</strong> ${s.nextsteps}</div>` : ''}
+    </div>`).join('');
+  addLog('green', `Schemes: ${schemes.filter(s=>s.eligible==='eligible').length} eligible, ${schemes.filter(s=>s.eligible==='partial').length} near-miss`);
+}
+
+function renderRejection() {
+  const prev = document.getElementById('ctx-prev')?.value;
+  if (prev !== 'rejected') return;
+  document.getElementById('rejectionBlock').style.display = 'block';
+  const reasons = [];
+  if (state.context.aadhaar==='has') reasons.push('Aadhaar not linked to bank — DBT could not be processed');
+  if (state.context.aadhaar==='no') reasons.push('No Aadhaar — mandatory for most central schemes');
+  if (state.context.income==='unsure') reasons.push('Income certificate not provided or unverified');
+  if (!state.context.category) reasons.push('Social category not declared — caste certificate may be required');
+  reasons.push('Application may have been submitted past the deadline for that cycle');
+  document.getElementById('rejectionContent').innerHTML = `<h3>⚠️ Likely Rejection Factors</h3><ul class="rejection-reasons">${reasons.map(r=>`<li>${r}</li>`).join('')}</ul>`;
+  document.getElementById('nearMissText').textContent = 'Most rejections are documentation issues, not eligibility failures. Address these specific points before reapplying.';
+  addLog('amber','Rejection analysis complete');
+}
+
+function renderJourneyLog() {
+  document.getElementById('journeyLogEntries').innerHTML = state.sessionLog.map(e =>
+    `<div class="log-entry"><div class="log-dot ${e.color}"></div><div><div class="log-text">${e.text}</div><div class="log-time">${e.time}</div></div></div>`
+  ).join('');
+}
+
+async function callAI(query, schemes, confidence, hasMiddleman) {
+  const eligible = schemes.filter(s=>s.eligible==='eligible').map(s=>s.name);
+  const partial = schemes.filter(s=>s.eligible==='partial').map(s=>s.name);
+  const prev = document.getElementById('ctx-prev')?.value;
+  const langInstructions = state.currentLang !== 'en' ? `Respond in ${{'hi':'Hindi','kn':'Kannada','ta':'Tamil','te':'Telugu','mr':'Marathi','bn':'Bengali'}[state.currentLang] || 'English'}.` : '';
+
+  const system = `You are Info-Bharat's AI explanation layer. You explain what the deterministic eligibility engine found. You never decide eligibility yourself. Be warm, simple, and direct. 3-4 sentences. No bullet points. ${langInstructions}`;
+  const user = `Citizen: ${getRoleLabel(state.role)}, ${state.context.state}, age ${state.context.age}, income ${state.context.income}. Query: "${query}". Engine: confidence ${confidence}%${eligible.length?'. Eligible: '+eligible.join(', '):''}${partial.length?'. Near-miss: '+partial.join(', '):''}${hasMiddleman?'. EXPLOITATION DETECTED - agent payment mentioned.':''}${prev==='rejected'?'. Previously rejected.':''}. Write warm citizen-focused guidance. Address them as "you".`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system,messages:[{role:'user',content:user}]})
+    });
+    const data = await res.json();
+    const text = data.content?.map(b=>b.text||'').join('') || '';
+    if (text) { document.getElementById('aiGuidanceText').textContent = text; addLog('green','AI explanation generated'); renderJourneyLog(); }
+    else throw new Error('empty');
+  } catch {
+    let fallback = confidence < 40
+      ? 'Your profile has too many unverified attributes. Please complete your income and Aadhaar information and return — the system will guide you properly then.'
+      : hasMiddleman ? 'You mentioned paying someone to help. All government schemes are free. Do not pay any agent — report this at your nearest district office or call 1800-11-0001.'
+      : eligible.length ? `You appear eligible for ${eligible[0]}. Visit your nearest CSC with Aadhaar and income certificate. The process is free.`
+      : partial.length ? `You are very close to qualifying for ${partial[0]}. Check the near-miss guidance — fixing these items will likely make you eligible next cycle.`
+      : 'The engine could not confirm a clear match. Visit your nearest CSC or call the national helpline at 1800-11-0001 for a comprehensive check.';
+    document.getElementById('aiGuidanceText').textContent = fallback;
+    addLog('amber','AI guidance (fallback)'); renderJourneyLog();
+  }
+}
+
+// ═══ GRIEVANCE ENGINE ═══
+async function analyzeGrievance() {
+  const scheme = document.getElementById('grv-scheme').value;
+  const reason = document.getElementById('grv-reason').value.trim();
+  const location = document.getElementById('grv-location').value.trim();
+  if (!scheme || !reason) { alert('Please select a scheme and describe the rejection reason.'); return; }
+
+  document.getElementById('grievanceResult').style.display = 'block';
+  document.getElementById('grievanceLetter').innerHTML = '<span class="typing-dots"><span></span><span></span><span></span></span>';
+
+  // Deterministic analysis
+  const isLikelyError = reason.toLowerCase().includes('income') || reason.toLowerCase().includes('document') || reason.toLowerCase().includes('certificate') || reason.toLowerCase().includes('never heard');
+  document.getElementById('grievanceAnalysis').innerHTML = isLikelyError
+    ? `<div class="alert warning"><div class="alert-icon">⚠️</div><div class="alert-body"><strong>Likely Bureaucratic Error</strong>The reason given does not appear to match standard rejection criteria for ${scheme}. This may be an incorrect rejection that can be reversed.</div></div>`
+    : `<div class="alert info"><div class="alert-icon">📋</div><div class="alert-body"><strong>Documentation Issue Identified</strong>The rejection appears to be based on a missing document — not permanent ineligibility. This is addressable.</div></div>`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,
+        system:'You write formal grievance letters for Indian citizens who have been incorrectly rejected from government schemes. Write a professional, polite letter in English. Include: To, Subject, body with specific scheme name and rejection reason, request for review. Keep under 200 words. No markdown, no bullet points. Just the letter text.',
+        messages:[{role:'user',content:`Write a grievance letter for a citizen rejected from ${scheme}. Rejection reason given: "${reason}". Location: ${location||'India'}. Make it formal and polite.`}]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.map(b=>b.text||'').join('') || '';
+    document.getElementById('grievanceLetter').textContent = text || 'Unable to generate letter. Please describe the rejection in more detail.';
+  } catch {
+    document.getElementById('grievanceLetter').textContent = `To,\nThe Grievance Officer,\nDistrict Welfare Department,\n${location||'[Your District]'}\n\nSubject: Request for Review of Rejection from ${scheme}\n\nRespected Sir/Madam,\n\nI am writing to request a review of my application which was rejected for ${scheme}. The reason provided was: "${reason}". I believe this rejection may be incorrect as I meet the eligibility criteria. I respectfully request that my application be reconsidered.\n\nThank you.\n\nYours sincerely,\n[Your Name]\n[Your Aadhaar / Application Number]\n[Date]`;
+  }
+}
+
+// ═══ HELPERS ═══
+function addLog(color, text) {
+  state.sessionLog.push({color, text, time: new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'})});
+}
+function getRoleLabel(role) {
+  return {student:'Student',farmer:'Farmer',senior:'Senior Citizen',woman:'Women/SHG',bpl:'BPL Household',disabled:'Person with Disability'}[role] || role;
+}
+function setLoadingStatus(msg) { document.getElementById('loadingStatus').textContent = msg; }
+function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+function restartSession() {
+  state.role=null; state.context={}; state.query=''; state.sessionLog=[];
+  document.querySelectorAll('.role-btn').forEach(b=>b.classList.remove('selected'));
+  document.getElementById('roleNext').disabled=true;
+  document.getElementById('query-text').value='';
+  ['ctx-state','ctx-age','ctx-income','ctx-aadhaar','ctx-category'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('refusalNotice').style.display='none';
+  goTo('role',0);
+}
+
+// Animate perf bars on community tab click
+document.getElementById('tab-community').addEventListener('click', () => {
+  setTimeout(() => {
+    document.querySelectorAll('.perf-bar-fill').forEach(b => {
+      const w = b.style.width; b.style.width = '0'; setTimeout(() => b.style.width = w, 100);
+    });
+  }, 200);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,221 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Info-Bharat — AWS AI for Bharat Hackathon
+  India's First AI-Powered Citizen Entitlement Advocate
+
+  Deploy with: sam build && sam deploy --guided
+
+Globals:
+  Function:
+    Runtime: python3.11
+    Timeout: 30
+    MemorySize: 256
+    Environment:
+      Variables:
+        SCHEMES_TABLE: !Ref SchemesTable
+        JOURNEYS_TABLE: !Ref JourneysTable
+        DISTRICT_TABLE: !Ref DistrictMetricsTable
+        BEDROCK_MODEL_ID: anthropic.claude-sonnet-4-5
+        BEDROCK_REGION: ap-south-1
+    Layers:
+      - !Ref CommonLayer
+
+# ─────────────────────────────────────────────────────────────────────────────
+# API GATEWAY
+# ─────────────────────────────────────────────────────────────────────────────
+Resources:
+  InfoBharatApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: prod
+      Cors:
+        AllowMethods: "'GET,POST,OPTIONS'"
+        AllowHeaders: "'Content-Type,X-Amz-Date,Authorization'"
+        AllowOrigin: "'*'"
+      Auth:
+        DefaultAuthorizer: NONE
+
+# ─────────────────────────────────────────────────────────────────────────────
+# LAMBDA FUNCTIONS
+# ─────────────────────────────────────────────────────────────────────────────
+  TrustIntegrityEngine:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: info-bharat-trust-integrity-engine
+      CodeUri: lambda/trust-integrity-engine/
+      Handler: handler.lambda_handler
+      Description: >
+        Core deterministic eligibility engine.
+        Runs middleman detection, confidence scoring, refusal logic,
+        eligibility validation, near-miss analysis.
+        Invokes Bedrock only after all deterministic steps complete.
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref SchemesTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref JourneysTable
+        - Statement:
+            Effect: Allow
+            Action:
+              - bedrock:InvokeModel
+            Resource:
+              - !Sub "arn:aws:bedrock:ap-south-1::foundation-model/anthropic.claude-sonnet-4-5"
+      Events:
+        EvaluateEndpoint:
+          Type: Api
+          Properties:
+            RestApiId: !Ref InfoBharatApi
+            Path: /evaluate
+            Method: POST
+
+  PatternAggregator:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: info-bharat-pattern-aggregator
+      CodeUri: lambda/pattern-aggregator/
+      Handler: handler.lambda_handler
+      Description: >
+        Aggregates anonymised citizen journey logs into district-level metrics.
+        Scheduled to run hourly. Feeds the Community Intelligence layer.
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref JourneysTable
+        - DynamoDBWritePolicy:
+            TableName: !Ref DistrictMetricsTable
+      Events:
+        ScheduledAggregation:
+          Type: Schedule
+          Properties:
+            Schedule: rate(1 hour)
+
+  CommunityDataEndpoint:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: info-bharat-community-data
+      CodeUri: lambda/community-aggregator/
+      Handler: handler.lambda_handler
+      Description: >
+        Serves anonymised community intelligence data to frontend.
+        Returns district heatmaps, exploitation concentration, scheme performance.
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref DistrictMetricsTable
+      Events:
+        CommunityEndpoint:
+          Type: Api
+          Properties:
+            RestApiId: !Ref InfoBharatApi
+            Path: /community
+            Method: GET
+
+  GovernmentDashboardEndpoint:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: info-bharat-government-dashboard
+      CodeUri: lambda/scheme-validator/
+      Handler: handler.lambda_handler
+      Description: >
+        Serves government dashboard data — district, state, and ministry views.
+        Read-only access to aggregated district metrics.
+      Policies:
+        - DynamoDBReadPolicy:
+            TableName: !Ref DistrictMetricsTable
+        - DynamoDBReadPolicy:
+            TableName: !Ref SchemesTable
+      Events:
+        GovernmentEndpoint:
+          Type: Api
+          Properties:
+            RestApiId: !Ref InfoBharatApi
+            Path: /government/{level}
+            Method: GET
+
+# ─────────────────────────────────────────────────────────────────────────────
+# DYNAMODB TABLES
+# ─────────────────────────────────────────────────────────────────────────────
+  SchemesTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: info_bharat_schemes
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: scheme_id
+          AttributeType: S
+      KeySchema:
+        - AttributeName: scheme_id
+          KeyType: HASH
+      Tags:
+        - Key: Project
+          Value: InfoBharat
+
+  JourneysTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: info_bharat_citizen_journeys
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: session_id
+          AttributeType: S
+        - AttributeName: timestamp
+          AttributeType: N
+      KeySchema:
+        - AttributeName: session_id
+          KeyType: HASH
+        - AttributeName: timestamp
+          KeyType: RANGE
+      TimeToLiveSpecification:
+        AttributeName: ttl
+        Enabled: true    # Auto-delete journey logs after 90 days
+      Tags:
+        - Key: Project
+          Value: InfoBharat
+        - Key: DataType
+          Value: Anonymised  # No PII stored
+
+  DistrictMetricsTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: info_bharat_district_metrics
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: district_id
+          AttributeType: S
+        - AttributeName: month
+          AttributeType: S
+      KeySchema:
+        - AttributeName: district_id
+          KeyType: HASH
+        - AttributeName: month
+          KeyType: RANGE
+      Tags:
+        - Key: Project
+          Value: InfoBharat
+
+# ─────────────────────────────────────────────────────────────────────────────
+# SHARED LAYER
+# ─────────────────────────────────────────────────────────────────────────────
+  CommonLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+      LayerName: info-bharat-common
+      Description: Shared utilities for Info-Bharat Lambda functions
+      ContentUri: lambda/trust-integrity-engine/
+      CompatibleRuntimes:
+        - python3.11
+
+# ─────────────────────────────────────────────────────────────────────────────
+# OUTPUTS
+# ─────────────────────────────────────────────────────────────────────────────
+Outputs:
+  ApiUrl:
+    Description: Info-Bharat API Gateway endpoint
+    Value: !Sub "https://${InfoBharatApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
+  
+  EvaluateEndpoint:
+    Description: Citizen eligibility evaluation endpoint
+    Value: !Sub "https://${InfoBharatApi}.execute-api.${AWS::Region}.amazonaws.com/prod/evaluate"
+  
+  CommunityEndpoint:
+    Description: Community intelligence data endpoint
+    Value: !Sub "https://${InfoBharatApi}.execute-api.${AWS::Region}.amazonaws.com/prod/community"

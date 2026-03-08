@@ -1,0 +1,62 @@
+-- Info-Bharat DynamoDB Table Definitions
+-- Note: DynamoDB is schemaless — these are the key structures used.
+-- Represented as SQL for clarity; actual deployment uses AWS CLI / SAM template.
+
+-- ─────────────────────────────────────────────────────────────
+-- TABLE: info_bharat_schemes
+-- Stores eligibility rules for all government welfare schemes
+-- Partition Key: scheme_id (String)
+-- ─────────────────────────────────────────────────────────────
+-- Attributes:
+--   scheme_id          String   e.g. "PMAY_GRAMIN"
+--   scheme_name        String   e.g. "PM Awas Yojana (Gramin)"
+--   ministry           String   e.g. "Ministry of Rural Development"
+--   scheme_type        String   "central" | "state"
+--   available_states   List     ["all"] or ["Bihar", "UP", ...]
+--   eligibility_rules  Map
+--     max_annual_income  Number   e.g. 200000
+--     min_age            Number   e.g. 18
+--     max_age            Number   e.g. 65
+--     eligible_categories List   ["SC", "ST", "OBC", "GENERAL"]
+--     requires_aadhaar   Boolean
+--     land_holding_max   Number   (acres, for farmer schemes)
+--   application_url    String
+--   helpline           String
+--   documents_required List
+--   state_variants     Map      State-specific rule overrides
+--   last_updated       String   ISO 8601 timestamp
+
+-- ─────────────────────────────────────────────────────────────
+-- TABLE: info_bharat_citizen_journeys
+-- Anonymised session logs for community intelligence
+-- Partition Key: session_id (String)
+-- Sort Key: timestamp (Number)
+-- ─────────────────────────────────────────────────────────────
+-- Attributes:
+--   session_id          String   UUID (not linked to citizen identity)
+--   timestamp           Number   Unix epoch
+--   eligible_count      Number   How many schemes matched
+--   near_miss_count     Number   How many near-misses
+--   confidence_score    String   Score at time of evaluation
+--   middleman_detected  Boolean  Exploitation signal detected
+--   language            String   Language used
+--   state               String   State only (no district, no PII)
+-- NOTE: NO name, income, address, Aadhaar number, or identifying data stored
+
+-- ─────────────────────────────────────────────────────────────
+-- TABLE: info_bharat_district_metrics
+-- Aggregated district-level intelligence for Government Dashboard
+-- Partition Key: district_id (String)
+-- Sort Key: month (String) e.g. "2025-03"
+-- ─────────────────────────────────────────────────────────────
+-- Attributes:
+--   district_id         String
+--   state               String
+--   month               String
+--   total_queries       Number
+--   eligible_rate       Number   % of queries resulting in eligibility
+--   near_miss_rate      Number   % near-misses
+--   middleman_rate      Number   % queries with exploitation signals
+--   refusal_rate        Number   % withheld due to low confidence
+--   top_failing_scheme  String   Most-rejected scheme in district
+--   csc_coverage        Number   % area covered by Common Service Centres
