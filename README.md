@@ -29,7 +29,7 @@ We believe judges should reward teams that fight through adversity, not give up.
 
 ## 🌐 Live Prototype
 
-**(https://info-bharat.vercel.app)**
+**(https://info-bharat-app.vercel.app/)**
 
 - ✅ All 4 modules functional
 - ✅ Real Claude AI (Sonnet) — same model as Amazon Bedrock
