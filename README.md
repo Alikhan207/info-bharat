@@ -2,19 +2,19 @@
 ### India's First AI-Powered Citizen Entitlement Advocate
 
 > **AWS AI for Bharat Hackathon — AI for Communities Theme**  
-> Team: Info-Bharat | Lead: Mohammed Ali Khan
+> Team: InceptiveTan | Lead: Mohammed Ali Khan
 
 ---
 
 ## 🔴 Honest Note on AWS Deployment — Read First
 
-We attempted to deploy the production architecture on Amazon Web Services. Multiple signup attempts were made across several days. Despite completing all required steps — payment method, identity verification, support plan selection — the account remained on "incomplete setup" with services inaccessible.
+I attempted to deploy the production architecture on Amazon Web Services. Multiple signup attempts were made across several days. Despite completing all required steps payment method, identity verification, support plan selection the account remained on "incomplete setup" with services inaccessible.
 
 **Evidence of attempt:** See [`docs/aws-activation-failure.md`](docs/aws-activation-failure.md)
 
-Rather than give up and submit nothing, we made a deliberate choice:
+Rather than give up and submit nothing, I made a deliberate choice:
 
-> *"The architecture is real. The logic is real. The problem is real. If AWS won't activate in time, we'll prove the concept another way."*
+> *"The architecture is real. The logic is real. The problem is real. If AWS won't activate in time, I will prove the concept another way."*
 
 **The working prototype uses:**
 - **Claude API (Anthropic)** — same model family as Amazon Bedrock (Claude Sonnet)
@@ -23,9 +23,8 @@ Rather than give up and submit nothing, we made a deliberate choice:
 
 **The production architecture remains unchanged** — Lambda, DynamoDB, Bedrock, API Gateway. The code scaffolding for all Lambda functions is in this repository, ready to deploy the moment an AWS account activates.
 
-We believe judges should reward teams that fight through adversity, not give up. This is that submission.
+I believe judges should reward teams that fight through adversity, not give up. This is that submission.
 
----
 
 ## 🌐 Live Prototype
 
